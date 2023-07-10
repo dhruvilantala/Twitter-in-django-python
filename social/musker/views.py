@@ -22,7 +22,9 @@ def home(request):
                 meep.save()
                 messages.success(request, 'Your tweet has been posted...')
                 return redirect('home')
-        meeps = Meep.objects.all().order_by('-created_at')
+        followed_profiles = current_user_profile.follows.all()
+        followed_users = followed_profiles.values_list('user', flat=True)    
+        meeps = Meep.objects.filter(user__in=followed_users).order_by('-created_at')
         return render(request, 'home.html', {'meeps': meeps, 'form': form, 'profiles': profiles})
     else:
         meeps = Meep.objects.all().order_by('-created_at')
