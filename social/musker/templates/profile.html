@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+{% if profile %}
+    <div class="container">
+        <div class="row">
+            <div class="col-8">
+                <h1>{{ profile.user.username|capfirst }}'s Profile</h1><br>
+                {% if meeps %}
+                    {% for meep in meeps %}
+
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-header">
+                              <div class="col-1">
+                              <a class="text-decoration-none" href="{% url 'profile' meep.user.id %}">
+                                  {% if meep.user.profile.profile_image %}
+                                  <img width=50 height=50 class="rounded-circle" src="{{ meep.user.profile.profile_image.url }}"><p class="position-absolute text-black" style="margin-left: 8%;
+                                  top: 5%;font-size: 17px;text-align:left;">{{ meep.user.username|capfirst }}<br>
+                                  <small class"text-muted" style="text-align:left;">
+                                    {{ meep.created_at }} 
+                                  </small>
+                                </p>
+                                  
+                                  {% else %}
+                                  <img width=50 height=50 class="rounded-circle" src="{% static 'img/profile.jpeg' %}"><p class="position-absolute text-black" style="margin-left: 8%;
+                                  top: 5%;font-size: 17px;text-align:left;">{{ meep.user.username|capfirst }}<br>
+                                  <small class"text-muted" style="text-align:left;">
+                                    {{ meep.created_at }} 
+                                  </small>
+                                </p>
+                                  {% endif %}
+                              </a>
+                              <div class="position-absolute" style="margin-left:93%; top:10%" >
+                                {% if meep.user.id == request.user.id %}
+                                    <a href="{% url 'edit_meep' meep.id %}"> <i class="fa fa-edit" style="color:black; font-size: 15px;"></i></a>
+                                    <a href="{% url 'delete_meep' meep.id %}"> <i class="fa fa-trash" style="color:black; font-size: 15px;"></i>   </a>
+                                {% endif %}
+                                </div>
+                              </div>
+                            </div>
+                            <div class="card-body">
+                            
+
+
+                        <div class="row">
+                            <div class="col-12">
+                                {{ meep.body }}<br><br>
+                            </div><br>
+                            <div class="row">
+                            <div class="col-1">
+                                {% if user in meep.likes.all %}
+                                <a class="text-decoration-none" href="{% url 'meep_like' meep.id %}"> <i class="fa-solid fa-heart fa-fade" style="color:red; font-size: 20px;"></i><p class="text-dark"  style="margin-left:5px" >{{ meep.number_of_likes }}</p></a>
+                                {% else %}
+                                <a class="text-decoration-none" href="{% url 'meep_like' meep.id %}"> <i class="fa fa-heart-o" style="color:black; font-size: 20px;"></i> <p class="text-dark" style="margin-left:5px" >{{ meep.number_of_likes }}</p></a>
+                                {% endif %}
+                            </div><br>
+                            <div class="col-1">
+                                <a class="text-decoration-none" href="{% url 'meep_comment' meep.id %}"> <i class="fa-regular fa-comment" style="color:black; font-size: 20px;"></i><p class="text-dark" style="margin-left:5px" >{{ meep.comment_on_tweet.count }} </p> </a>
+                                
+                            </div>
+                            <div class="col-1">
+                                <a href="{% url 'meep_show' meep.id %}"> <i class="fa fa-send" style="color:black; font-size: 20px;"></i> </a>
+                                
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+        </div><br>
+        {% endfor %}
+        {% endif %}
+            </div>
+            <div class="col-4 text-center">
+                <br><br><br>
+                {% if profile.profile_image %}
+                <img class="rounded-circle col-8" src="{{ profile.profile_image.url }}">
+                {% else %}
+                <img class="col-12" src="{% static 'img/profile.jpeg' %}">
+                {% endif %}
+                <br> <br>
+                {% if request.user.id == profile.user.id %}
+                <a class="btn btn-dark col-12" href="{% url 'update_user' %}">Update Profile</a><br>
+                {% endif %}
+
+                {% if request.user.id != profile.user.id %}
+                <form method='POST'>
+                    {% csrf_token %}
+                    {% if profile in user.profile.follows.all %}
+                        <button class="btn btn-outline-danger col-12" name="follow" value="unfollow" type="submit">
+                            Unfollow @{{ profile.user.username|lower }}
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-success col-12" name="follow" value="follow" type="submit">
+                            Follow @{{ profile.user.username|lower }}
+                        </button>
+                    {% endif %}
+                {% endif %}
+                </form><br>
+                <div class="card">
+                    <h5 class="card-header">Follows ({{ profile.follows.all.count|add:'-1' }})</h5>
+                    <div class="card-body">
+                      <p class="card-text">
+                        {% for following in profile.follows.all %}
+                            {% if following.user.id != profile.user.id %}
+                                <a class="text-decoration-none text-dark" href="{% url 'profile' following.user.id %}">@{{ following }}</a>
+                                <a href="{% url 'unfollow' following.user.id %}">
+                                    {% if request.user.id == profile.user.id %}
+                                    <i class="fa fa-user-minus small" style="color:gray"></i>
+                                    {% endif %}
+                                </a><br>
+                            {% endif %}
+                        {% endfor %}
+                      </p>
+                    </div>
+                </div>
+                <br>
+                <div class="card">
+                    <h5 class="card-header">Followed By ({{ profile.followed_by.all.count|add:'-1' }})</h5>
+                    <div class="card-body">
+                      <p class="card-text">
+                        {% for following in profile.followed_by.all %}
+                            {% if following.user.id != profile.user.id %}
+                            <a class="text-decoration-none text-dark" href="{% url 'profile' following.user.id %}">@{{ following }}</a>
+                                {% if following in profile.follows.all %}
+                                <a href="{% url 'unfollow' following.user.id %}">
+                                    {% if request.user.id == profile.user.id %}
+                                    <i class="fa fa-user-minus small" style="color:gray"></i>
+                                    {% endif %}
+                                </a>
+                                {% else %}
+                                <a href="{% url 'follow' following.user.id %}">
+                                    {% if request.user.id == profile.user.id %}
+                                    <i class="fa fa-user-plus small" style="color:gray"></i>
+                                    {% endif %}
+                                </a>
+                                {% endif %}<br>
+                            {% endif %}
+                        {% endfor %}
+                      </p>
+                    </div>
+                </div>
+                <br>
+                
+            </div>
+        </div>
+    </div>
+
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% comment %} <div class="container text-center"> {% endcomment %}
+    <div class="row m-2">
+    <div class="col-2">
+    <div class="position-fixed col-2 p-3">
+    {% include 'profile_view.html' %}
+    
+    <a class="btn btn-dark col-12" href="{% url 'profile_list' %}">View More Profile</a>
+</div>
+</div>
+        <div class="col-6"><br>
+            {% for meep in meeps %}
+                <div class="alert alert-light text-center" role="alert">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-1">
+                            <a class="text-decoration-none" href="{% url 'profile' meep.user.id %}">
+                                {% if meep.user.profile.profile_image %}
+                                <img width=50 height=50 class="rounded-circle" src="{{ meep.user.profile.profile_image.url }}">
+                                {% else %}
+                                <img width=50 height=50 class="rounded-circle" src="{% static 'img/profile.jpeg' %}">
+                                {% endif %}
+                            </a>
+                            </div>
+                            <div class="col-8">
+                                {{ meep.body }}<br>
+                            <small class"text-muted">
+                                ({{ meep.created_at }}) By @{{ meep.user.username }} 
+                            </small>
+                            </div>
+                            <div class="col-2">
+                                {% if user in meep.likes.all %}
+                                <a href="{% url 'meep_like' meep.id %}"> <i class="fa-solid fa-heart" style="color:red; font-size: 24px;"></i></a>
+                                {% else %}
+                                <a href="{% url 'meep_like' meep.id %}"> <i class="fa fa-heart-o" style="color:red; font-size: 24px;"></i> </a>
+                                {% endif %}
+                                <p>{{ meep.number_of_likes }} Likes</p>
+                            </div><br>
+                            <div class="col-1">
+                                <a href="{% url 'meep_show' meep.id %}"> <i class="fa fa-share" style="color:black; font-size: 24px;"></i> </a>
+                                <p>Share</p>
+                            </div>
+                     </div>
+                 </div>
+                </div>
+            
+            {% endfor %}
+        </div>
+
+
+        <div class="col-4"><br>
+            {% if form %}
+            <form class="position-fixed" method='POST'>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-dark col-12">Post Tweet!</button>
+              </form>
+            {% endif %}  
+        </div>
+{% endblock  %}

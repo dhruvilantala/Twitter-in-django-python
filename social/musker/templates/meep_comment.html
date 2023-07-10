@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+        <div class="container">
+            <div class="row">
+                <div class="col-7">
+                    <h1>Comments</h1><br>
+                    <div class="card">
+                        <div class="card-header">
+                          <div class="col-1">
+                          <a class="text-decoration-none" href="{% url 'profile' meep.user.id %}">
+                              {% if meep.user.profile.profile_image %}
+                              <img width=50 height=50 class="rounded-circle" src="{{ meep.user.profile.profile_image.url }}"><p class="position-absolute text-black" style="margin-left: 8%;
+                              top: 3%;font-size: 17px;text-align:left;">{{ meep.user.username|capfirst }}<br>
+                              <small class"text-muted" style="text-align:left;">
+                                {{ meep.created_at }} 
+                              </small>
+                            </p>
+                              
+                              {% else %}
+                              <img width=50 height=50 class="rounded-circle" src="{% static 'img/profile.jpeg' %}"><p class="position-absolute text-black" style="margin-left: 8%;
+                              top: 3%;font-size: 17px;text-align:left;">{{ meep.user.username|capfirst }}<br>
+                              <small class"text-muted" style="text-align:left;">
+                                {{ meep.created_at }} 
+                              </small>
+                            </p>
+                              {% endif %}
+                          </a>
+                          </div>
+                        </div> 
+                        <div class="card-body">
+                            
+                            <div class="row">
+                                <div class="col-12">
+                                    {{ meep.body }}<br><br>
+                                </div><br>
+                                <div class="row">
+                                <div class="col-1">
+                                    {% if user in meep.likes.all %}
+                                    <a href="{% url 'meep_like' meep.id %}"> <i class="fa-solid fa-heart fa-fade" style="color:red; font-size: 20px;"></i></a>
+                                    {% else %}
+                                    <a href="{% url 'meep_like' meep.id %}"> <i class="fa fa-heart-o" style="color:black; font-size: 20px;"></i> </a>
+                                    {% endif %}
+                                </div><br>
+                                <div class="col-1">
+                                    <a href="{% url 'meep_show' meep.id %}"> <i class="fa fa-send" style="color:black; font-size: 20px;"></i> </a>
+                                    
+                                </div>
+                                </div>
+                                <p style="top: 5%;font-size: 15px;margin-left:6px">{{ meep.number_of_likes }}</p>
+                            </div>
+                        </div>
+                        <div class="p-2">
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                <label for="exampleInputPassword1" class="form-label"><b>Add Comment</b></label>
+                                <textarea type="password" name="comment_body" class="form-control" id="exampleInputPassword1"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-dark">Post</button>
+                            </form>
+                        </div>
+                    
+                    </div>
+                </div>
+                <div class="col-5"><br><br><br>
+                    <div>
+                        {% if comments %}
+                            {% for comment in comments %}
+                            <div class="alert alert-light " role="alert">
+                            <h6>
+                                <a class ="text-decoration-none text-dark" href = "{% url 'profile' comment.user.id %}" >
+                                {% if comment.user.profile.profile_image %}
+                                    <img src="{{  comment.user.profile.profile_image.url }}" width=25 height=25 class="rounded-circle" alt="{{ profile.user.username }}">
+                                {% else %}
+                                    <img src="{% static 'images/default_profile_pic.jpg' %}" width=25 height=25 class="rounded-circle " alt="{{ profile.user.username }}">
+                                {% endif %}
+                                {{comment.user.username|title}}
+                                <hr>
+                                {{comment.body}}
+                                </a>
+
+                
+                            </h6>
+
+                            
+                            
+                                <div class="position-absolute" style="margin-left:90%; top:14%" >
+                                {% if comment.user.id == request.user.id %}
+                                    <a href="{% url 'delete_comment' comment.id %}"> <i class="fa fa-trash" style="color:black; font-size: 16px;"></i>   </a>
+                                {% endif %}
+                                </div>
+                                <br>
+                                
+                                <div class="position-absolute" style="margin-left:89%; top:50%" >
+                                {% if user in comment.likes.all %}
+                                    <a  class="text-decoration-none" href="{% url 'like_comment' comment.id %}"> <i class="fa-solid fa-heart" style="color:red; font-size: 21px;"></i> </a>
+                                {% else %}
+                                    <a class="text-decoration-none" href="{% url 'like_comment' comment.id %}"> <i class="fa fa-heart-o" style="color:black; font-size: 21px;"></i> </a>
+                                {% endif %}
+                                <br>
+                                <p style="margin-left: 35%;top: 45%;position: absolute;">{{ comment.number_of_likes }}<p> 
+                                </div>
+                                
+                            </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
+{% endblock  %}

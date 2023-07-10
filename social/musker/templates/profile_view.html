@@ -1,0 +1,25 @@
+{% load static %}
+{% if profiles %}
+{% for profile in profiles %}
+        <a class="text-decoration-none" href="{% url 'profile' profile.user.id %}">
+         <div class="card mb-3 " style="max-width: 540px;">
+             <div class="row g-0">
+             <div class="col-md-4">
+             {% if profile.profile_image %}
+             <img class="rounded-circle col-8 m-3" src="{{ profile.profile_image.url }}">
+             {% else %}
+             <img class="rounded-circle col-12 m-3" src="{% static 'img/profile.jpeg' %}">
+             {% endif %}
+             </div>
+             <div class="col-md-8">
+                 <div class="card-body">
+                 <h5 class="card-title">{{ profile.user.username|capfirst }}</h5>
+                 <p class="card-text">@{{ profile.user.username|lower }}</p>
+                 </div>
+             </div>
+             </div>
+         </div>
+         <br>
+        </a> 
+{% endfor %}
+{% endif %}
